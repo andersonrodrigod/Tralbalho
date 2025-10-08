@@ -2,6 +2,7 @@ import pandas as pd
 import pyperclip
 import time
 import pyautogui as py
+import re
 
 
 def copy_vazio():
@@ -18,6 +19,7 @@ def automacao_codigo_inicio(codigo):
 
     copy_vazio()
 
+    py.press("enter")
     py.press("enter")
     py.press("enter")
     py.press("enter")
@@ -52,12 +54,15 @@ def pegar_telefone():
     py.hotkey("ctrl", "c")
     time.sleep(0.5)
     telefone = pyperclip.paste()
-    #print(telefone)
-    print(telefone)
-    time.sleep(0.5)
-    #print(repr(telefone))
-    return telefone
+    telefone_limpo = re.sub(r'\s+', '', telefone)  # remove espaços, tabs, quebras de linha
 
+    print(f"Telefone copiado: {repr(telefone)}")
+
+    if not telefone_limpo or telefone_limpo in ["\u200b", "\ufeff"]:
+        print("⚠️ Nenhum telefone válido encontrado. Encerrando tentativa.")
+        return None  # sinaliza que não encontrou nada útil
+
+    return telefone
 
 def aplicar_filtro():
     py.click(79, 545)

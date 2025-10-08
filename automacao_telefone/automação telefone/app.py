@@ -6,6 +6,8 @@ from automacao import pegar_telefone, automacao_codigo_inicio, automacao_codigo_
 from checar_dados import ajustar_numero_telefone, is_numero_telefone
 
 
+
+
 def copy_vazio():
     pyperclip.copy("")
 
@@ -15,6 +17,10 @@ def coordenadas_telefone():
         (79, 561),  # Telefone 2
         (79, 580),  # Telefone 3
     ]
+
+
+def telefone_valido(telefone):
+    return telefone is not None and telefone.strip() != ""
 
 def automar_fuction(df):
     
@@ -28,7 +34,7 @@ def automar_fuction(df):
     
 
     
-    for i, row in df.iterrows():
+    for i, row in df[df["Status"] == ""].iterrows():
         codigo = str(row["Codigo"]).strip()
         automacao_codigo_inicio(codigo)
         #print(codigo)
@@ -66,14 +72,22 @@ def automar_fuction(df):
             py.click(x, y)
             time.sleep(0.5)
             telefone = pegar_telefone()
+
+            if telefone is None:
+                print("Telefone vazio ou inválido. Pulando para próxima tentativa.")
+                consecutivos_invalidos += 1
+                filtro_aplicado = False
+                break 
+
             telefone = ajustar_numero_telefone(telefone)
             resultado = is_numero_telefone(telefone)
-            telefones_existentes = [row[col] for col in colunas_telefone]
+            telefones_existentes = [ajustar_numero_telefone(row[col].strip()) for col in colunas_telefone if row[col].strip()]
+
             cor = verificar_cor_pixel(x, y)
 
 
-            if cor == "PRETO" and resultado == "NOVO":
-                numero_preto = telefone
+            if cor == "PRETO" and resultado == "NOVO" and telefone not in telefones_existentes:
+                numero_preto = telefone 
                 print("Número preto armazenado.")
 
             elif cor == "VERDE" and resultado == "NOVO" and telefone not in telefones_existentes:
@@ -98,20 +112,23 @@ def automar_fuction(df):
                     print("Número repetido 4 vezes. Encerrando.")
                     break
 
-            else:
+            elif telefone is None:
                 print("Número inválido")
                 consecutivos_invalidos += 1
 
                 if consecutivos_invalidos >= 1:
                     print("Dois números inválidos consecutivos. Encerrando.")
-                    py.press("f4")
+                    py.press("f4") 
                     filtro_aplicado = False
                     break
 
+        py.press("f4")           
         if not telefone_adicionado and not filtro_aplicado:
+            print("cheguei")
             py.press("f8")
             numero_verde_segundo_loop = None
             numero_preto_segundo_loop = None
+            repeticoes_telefone = 0
             for j in range(8):
                 if j > 2:
                     py.click(361, 581)
@@ -124,10 +141,20 @@ def automar_fuction(df):
                 py.click(x, y)
                 time.sleep(0.5)
                 telefone = pegar_telefone()
+
+                if telefone is None:
+                    if j == 1:
+                        print("segundo loop")
+                        py.press("esc")
+                        if df.at[i, "Status"] not in ["NOVO CONTATO", "MESMO CONTATO"]:
+                            df.at[i, "Status"] = "SEM CONTATO"
+                        break
+                    continue     
                 telefone = ajustar_numero_telefone(telefone)
                 resultado = is_numero_telefone(telefone)
-                telefones_existentes = [row[col] for col in colunas_telefone]
+                telefones_existentes = [ajustar_numero_telefone(row[col].strip()) for col in colunas_telefone if row[col].strip()]
                 cor = verificar_cor_pixel(x, y)
+                print(telefone)
 
                 if resultado == "NOVO" and telefone not in telefones_existentes:
                     if cor == "VERDE":
@@ -148,7 +175,7 @@ def automar_fuction(df):
                         print("Número repetido 4 vezes. Encerrando.")
                         break
 
-                else:
+                elif telefone is None:
                     print("Número inválido")
                     consecutivos_invalidos += 1
                     if consecutivos_invalidos >= 2:
@@ -156,7 +183,8 @@ def automar_fuction(df):
                         if df.at[i, "Status"] not in ["NOVO CONTATO", "MESMO CONTATO"]:
                             df.at[i, "Status"] = "SEM CONTATO"
                         break 
-
+            
+            print("final")
             telefone_final = None
             if numero_verde_segundo_loop:
                 telefone_final = numero_verde_segundo_loop
@@ -174,25 +202,26 @@ def automar_fuction(df):
                         df.at[i, col] = telefone_final
                         df.at[i, "Status"] = "NOVO CONTATO"
                         telefone_adicionado = True
-                        break        
+                        break
+                       
 
         telefones_atualizados = [df.at[i, c] for c in colunas_telefone]
         #print(f"Código: {codigo} | Tel1: {telefones_atualizados[0]} | Tel2: {telefones_atualizados[1]} | Tel3: {telefones_atualizados[2]}")
 
         # Salvar checkpoint a cada 1 linhas
         if i % 2 == 0:
-            df.to_excel("dados_clinipan.xlsx", index=False)
+            df.to_excel("dados_ndi_sp_julho_troca.xlsx", index=False)
             #print(f"Checkpoint salvo na linha {i}")
 
 
         automacao_codigo_next()  
         
     
-    df.to_excel("dados_clinipan.xlsx", index=False)
+    df.to_excel("dados_ndi_sp_julho_troca.xlsx", index=False)
     #print("Salvamento final concluído.")
 
 
-dados = "dados_clinipan.xlsx"
+dados = "dados_ndi_sp_julho_troca.xlsx"
 
 automar_fuction(dados)
 

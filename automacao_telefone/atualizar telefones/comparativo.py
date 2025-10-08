@@ -1,9 +1,9 @@
 import pandas as pd
 
 # Lê os arquivos
-antigo = pd.read_excel("Planilha Julho 7 01_10.xlsx", sheet_name="BASE", dtype=str)
-novo = pd.read_excel("Planilha Julho nova.xlsx", sheet_name="BASE", dtype=str)
-dados = pd.read_excel("dados_clinipan.xlsx", dtype=str)[["Codigo", "Telefone 2"]].dropna()
+antigo = pd.read_excel("Planilha JUNHO 01.10 2.xlsx", sheet_name="BASE", dtype=str)
+novo = pd.read_excel("Planilha Junho nova.xlsx", sheet_name="BASE", dtype=str)
+dados = pd.read_excel("dados_adicionar_telefone_junho.xlsx", dtype=str)[["Codigo", "Telefone 2"]].dropna()
 
 # Remove duplicados de COD USUARIO nos dois arquivos
 antigo_unico = antigo.drop_duplicates(subset="COD USUARIO", keep=False)
