@@ -4,8 +4,8 @@ import warnings
 warnings.simplefilter("ignore", UserWarning)
 
 # arquivos
-origem = "detalhamento_de_pesquisa_urgencia.xlsx"
-destino = "Planilha JUNHO 01.10  copia.xlsx"
+origem = "detalhamento_de_pesquisa_internacao_limpo.xlsx"
+destino = "Planilha agosto atualizada 10.10 COPIA.xlsx"
 
 # mapeamento origem → destino (somente abas que serão atualizadas)
 abas = {

@@ -4,11 +4,11 @@ import warnings
 warnings.simplefilter("ignore", UserWarning)
 
 # --- 1. Carregar a planilha ---
-arquivo = "relatorio_analitico_de_agendamentos_hsm68e560695f0ea.xlsx"
+arquivo = "relatorio_analitico_de_agendamentos_status.xlsx"
 df = pd.read_excel(arquivo)
 
 # --- 2. Remover linhas com "Junho" ou "Agosto" na coluna Contato ---
-df = df[~df["Contato"].str.contains("junho|agosto", case=False, na=False)]
+df = df[~df["Contato"].str.contains("junho|julho", case=False, na=False)]
 
 # --- 3. Atualizar coluna Status quando Respondido = "Sim" ---
 df.loc[df["Respondido"].str.lower() == "sim", "Status"] = "Lida"
@@ -25,6 +25,7 @@ colunas_limpar = [
     "agendamento",
     "Campanha",
     "Agente"
+    "Status agendamento"
 ]
 
 # Limpa apenas as colunas que realmente existem
@@ -32,7 +33,7 @@ colunas_existentes = [c for c in colunas_limpar if c in df.columns]
 df[colunas_existentes] = ""
 
 # --- 5. Salvar resultado final ---
-saida = "planilha_tratada1.xlsx"
+saida = "planilha_tratada_status.xlsx"
 df.to_excel(saida, index=False)
 
 print("Processo concluído!")
