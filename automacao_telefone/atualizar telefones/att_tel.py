@@ -1,10 +1,10 @@
 import pandas as pd
 
 # Lê apenas a aba BASE da planilha original
-df_base = pd.read_excel("Planilha Julho 14.10 atualizada 1.xlsx", sheet_name="BASE", dtype=str)
+df_base = pd.read_excel("Planilha agosto atualizada 10.10 COPIA.xlsx", sheet_name="BASE", dtype=str)
 
 # Lê os novos telefones
-new_tel = pd.read_excel("total_julho_adicionar.xlsx", dtype=str)
+new_tel = pd.read_excel("total_agosto_adicionar.xlsx", dtype=str)
 new_tel = new_tel[["Codigo", "Telefone 2"]].dropna()
 new_tel["Telefone 2"] = new_tel["Telefone 2"].apply(lambda x: "55" + str(x).strip() if pd.notnull(x) else x)
 
