@@ -6,7 +6,7 @@ import warnings
 warnings.simplefilter("ignore", UserWarning)
 
 # Arquivo original
-arquivo = "Planilha Julho 09.10.xlsx"
+arquivo = "Planilha Julho 20.10.xlsx"
 
 # Lista de abas que devem ser filtradas
 abas = [
@@ -15,7 +15,7 @@ abas = [
     "p3", "comen p3",
     "p4", "comen p4",
     "p5", "comen p5",
-    "P6", "comen p6"
+    "P6", "comen p6",
 ]
 
 # Carrega o arquivo Excel existente (mantém fórmulas das outras abas)

@@ -4,7 +4,7 @@ import warnings
 warnings.simplefilter("ignore", UserWarning)
 
 # --- 1. Carregar a planilha ---
-arquivo = "relatorio_analitico_de_agendamentos_status.xlsx"
+arquivo = "planilhas/relatorio_analitico_de_agendamentos_status.xlsx"
 df = pd.read_excel(arquivo)
 
 # --- 2. Remover linhas com "Junho" ou "Agosto" na coluna Contato ---

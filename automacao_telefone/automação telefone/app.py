@@ -210,21 +210,21 @@ def automar_fuction(df):
 
         # Salvar checkpoint a cada 1 linhas
         if i % 2 == 0:
-            df.to_excel("total_agosto_adicionar.xlsx", index=False)
+            df.to_excel("total_julho_hap.xlsx", index=False)
             #print(f"Checkpoint salvo na linha {i}")
 
 
         automacao_codigo_next()  
         
     
-    df.to_excel("total_agosto_adicionar.xlsx", index=False)
+    df.to_excel("total_julho_hap.xlsx", index=False)
     #print("Salvamento final concluído.")
 
 
 
 
 
-dados = "total_agosto_adicionar.xlsx"
+dados = "total_julho_hap.xlsx"
 
 automar_fuction(dados)
 

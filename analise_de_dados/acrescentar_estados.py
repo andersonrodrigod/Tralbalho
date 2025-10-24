@@ -1,13 +1,12 @@
 import pandas as pd
 
 # --- 1️⃣ Carregar a planilha ---
-# (troque o caminho pelo seu arquivo)
-df = pd.read_excel("planilhas/acrescento_dados.xlsx", sheet_name="respostas qr code")
-#print(df.columns.tolist())
+df = pd.read_excel("dados.xlsx")
 
+# --- 2️⃣ Remover espaços extras antes e depois do texto ---
+df["Estado"] = df["Estado"].astype(str).str.strip()
 
-
-# --- 2️⃣ Dicionário com os estados e suas siglas ---
+# --- 3️⃣ Dicionário com os estados e suas siglas ---
 estados_siglas = {
     "Acre": "AC",
     "Alagoas": "AL",
@@ -38,17 +37,16 @@ estados_siglas = {
     "Tocantins": "TO"
 }
 
-# --- 3️⃣ Criar nova coluna com as siglas ---
-df["Sigla Estado"] = df["qual estado você reside? (input)"].map(estados_siglas)
+# --- 4️⃣ Criar nova coluna com as siglas ---
+df["Sigla Estado"] = df["Estado"].map(estados_siglas)
 
-# --- 4️⃣ (Opcional) Verificar se há estados não reconhecidos ---
-nao_encontrados = df[df["Sigla Estado"].isna()]["qual estado você reside? (input)"].unique()
-
+# --- 5️⃣ Verificar se há estados não reconhecidos ---
+nao_encontrados = df[df["Sigla Estado"].isna()]["Estado"].unique()
 if len(nao_encontrados) > 0:
     print("⚠️ Estados não reconhecidos encontrados:")
     for estado in nao_encontrados:
         print(" -", estado)
 
-# --- 5️⃣ Salvar o resultado ---
+# --- 6️⃣ Salvar o resultado ---
 df.to_excel("acrescento_dados_com_siglas.xlsx", index=False)
 print("✅ Nova planilha criada com a coluna de siglas.")

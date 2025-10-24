@@ -2,7 +2,7 @@ import pandas as pd
 from openpyxl import load_workbook
 
 # --- Caminhos dos arquivos ---
-arquivo_destino = "Planilha agosto.xlsx"        # arquivo principal (com fórmulas)
+arquivo_destino = "Planilha agosto atualizada 16.10.xlsx"        # arquivo principal (com fórmulas)
 arquivo_origem = "planilha_tratada_status.xlsx"                 # arquivo com os novos dados
 aba_alvo = "status"                                             # aba a atualizar
 

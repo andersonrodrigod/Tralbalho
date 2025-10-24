@@ -4,7 +4,7 @@ import warnings
 warnings.simplefilter("ignore", UserWarning)
 
 # Caminho do arquivo de entrada
-caminho_arquivo = "detalhamento_de_pesquisa_internacao.xlsx"
+caminho_arquivo = "planilhas/detalhamento_de_pesquisa_eletivo.xlsx"
 meses_para_remover = ["Junho de 2025", "Julho de 2025"]
 
 # Ler todas as abas do Excel
@@ -31,7 +31,7 @@ for nome_aba, df in planilhas.items():
     print(f"✅ {len(df) - len(df_limpo)} linhas removidas da aba '{nome_aba}'")
 
 # Salvar todas as abas novamente
-saida = "detalhamento_de_pesquisa_internacao_limpo.xlsx"
+saida = "detalhamento_de_pesquisa_eletivo_limpo.xlsx"
 with pd.ExcelWriter(saida, engine="openpyxl") as writer:
     for nome_aba, df in planilhas_limpa.items():
         df.to_excel(writer, sheet_name=nome_aba, index=False)

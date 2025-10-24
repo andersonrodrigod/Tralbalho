@@ -6,7 +6,7 @@ from openpyxl import load_workbook
 
 # --- Caminhos dos arquivos ---
 resumo_antigo = "RESUMO_DIARIO_OPERADORES.xlsx"  # resumo acumulado
-arquivo_base = "Planilha Julho 16.10.xlsx"       # base atual (nova)
+arquivo_base = "Planilha Julho 23.10.xlsx"       # base atual (nova)
 saida = "RESUMO_DIARIO_OPERADORES_ATUALIZADO.xlsx"
 
 # --- Funções de limpeza ---
@@ -76,8 +76,11 @@ if os.path.exists(resumo_antigo):
     tabela_dia = tabela_dia.reindex(columns=pd.MultiIndex.from_product([["WHATSAPP", "LIGAÇÃO"], todos_operadores]), fill_value=0)
 
     # --- Calcular o incremento do dia em relação ao total acumulado ---
-    total_acumulado = resumo_anterior.sum()
+    total_acumulado = resumo_anterior.apply(pd.to_numeric, errors="coerce").fillna(0).sum()
+
     tabela_dia = tabela_dia - total_acumulado
+
+    tabela_dia = tabela_dia.clip(lower=0)
 
     # --- Concatenar os dados (mantendo histórico) ---
     resumo_final = pd.concat([resumo_anterior, tabela_dia])
