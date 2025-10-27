@@ -32,9 +32,11 @@ class MenuFrame(ctk.CTkFrame):
 
         self.btn_excluir_linhas = ctk.CTkButton(self, text="Excluir Linhas", width=200, command=lambda: master.show_frame(ExcluirLinhas))
 
+        self.btn_excluir_linhas.pack(pady=(0,5))
+
         self.btn_fundir_planilhas = ctk.CTkButton(self, text="Fundir Planilhas", width=200, command=lambda: master.show_frame(MergePlanilhas))
 
-        self.btn_excluir_linhas.pack(pady=(0,5))
+        self.btn_fundir_planilhas.pack(pady=(0,5))
 
         self.btn_renomear_abas = ctk.CTkButton(self, text="Renomear Abas", width=200, command=lambda: master.show_frame(RenomearAbas))
 

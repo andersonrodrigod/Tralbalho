@@ -1,10 +1,10 @@
 import pandas as pd
 
 # Lê apenas a aba BASE da planilha original
-df_base = pd.read_excel("Planilha agosto atualizada 10.10 COPIA.xlsx", sheet_name="BASE", dtype=str)
+df_base = pd.read_excel("Planilha Agosto 24.10.xlsx", sheet_name="BASE", dtype=str)
 
 # Lê os novos telefones
-new_tel = pd.read_excel("total_agosto_adicionar.xlsx", dtype=str)
+new_tel = pd.read_excel("total_agosto_sp_novo_contato trocar contato.xlsx", dtype=str)
 new_tel = new_tel[["Codigo", "Telefone 2"]].dropna()
 new_tel["Telefone 2"] = new_tel["Telefone 2"].apply(lambda x: "55" + str(x).strip() if pd.notnull(x) else x)
 
@@ -20,5 +20,5 @@ df_base["TELEFONE"] = df_base.apply(
 )
 
 # Salva apenas a aba BASE atualizada
-with pd.ExcelWriter("Planilha Julho nova.xlsx", engine="openpyxl") as writer:
+with pd.ExcelWriter("Planilha Agosto nova.xlsx", engine="openpyxl") as writer:
     df_base.to_excel(writer, sheet_name="BASE", index=False)
