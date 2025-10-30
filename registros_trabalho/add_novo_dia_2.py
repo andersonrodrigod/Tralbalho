@@ -6,7 +6,7 @@ from openpyxl import load_workbook
 
 # --- Caminhos dos arquivos ---
 resumo_antigo = "RESUMO_DIARIO_OPERADORES.xlsx"  # resumo acumulado
-arquivo_base = "Planilha Julho 24.10.xlsx"       # base atual (nova)
+arquivo_base = "Planilha Julho 29.10.xlsx"       # base atual (nova)
 saida = "RESUMO_DIARIO_OPERADORES_ATUALIZADO.xlsx"
 
 # --- Funções de limpeza ---

@@ -1,6 +1,6 @@
 import pandas as pd
 
-arquivo = "planilhas/agosto são paulo//total_agosto_sp_segundo_contato.xlsx"
+arquivo = "agosto_hap_disparo_29_10.xlsx"
 
 # 1. Ler o arquivo Excel
 df = pd.read_excel(arquivo)
@@ -14,6 +14,6 @@ df["Telefone 2"] = df["Telefone 2"].apply(
 )
 
 # 4. Salvar o resultado em um novo arquivo
-df.to_excel("total_agosto_sp_segundo_contato.xlsx", index=False)
+df.to_excel("total_agosto_hap.xlsx", index=False)
 
 print("✅ Arquivo salvo com sucesso: total_julho_corrigido.xlsx")
