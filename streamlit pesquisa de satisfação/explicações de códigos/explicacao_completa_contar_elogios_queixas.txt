@@ -1,0 +1,227 @@
+
+EXPLICAÇÃO COMPLETA — FUNÇÃO contar_elogios_queixas (Versão Expandida)
+======================================================================
+
+Este documento reúne toda a explicação detalhada da função contar_elogios_queixas,
+incluindo o processo de concatenação, pivotagem, reindexação e o funcionamento
+dos principais métodos usados (.size(), .reset_index(), fill_value).
+
+
+-------------------------------------------------------------
+1️⃣ VISÃO GERAL
+-------------------------------------------------------------
+A função conta quantos registros possuem “ELOGIO/QUEIXA” em cada grupo e motivo,
+percorrendo automaticamente as 6 colunas da planilha (GRUPO-1 até GRUPO-6, MOTIVO-1 até MOTIVO-6).
+No final, ela monta uma tabela completa com todos os grupos e motivos, mesmo os que não apareceram (preenchendo com 0).
+
+
+-------------------------------------------------------------
+2️⃣ AGRUPAMENTO INICIAL
+-------------------------------------------------------------
+O agrupamento usa groupby([grupo_col, motivo_col]).size(), que conta quantas vezes
+cada combinação (grupo, motivo) aparece.
+
+Exemplo de df_filtrado:
+
+| GRUPO-1        | MOTIVO-1     | ELOGIO OU QUEIXA-1 |
+|----------------|--------------|--------------------|
+| ADMINISTRATIVO | ATENDIMENTO  | ELOGIO/QUEIXA      |
+| ADMINISTRATIVO | ATENDIMENTO  | ELOGIO/QUEIXA      |
+| ENFERMAGEM     | QUALIDADE    | ELOGIO/QUEIXA      |
+
+Após o groupby e reset_index, temos:
+
+| Grupo          | Motivo       | Quantidade |
+|----------------|--------------|-------------|
+| ADMINISTRATIVO | ATENDIMENTO  | 2           |
+| ENFERMAGEM     | QUALIDADE    | 1           |
+
+Esses dados são guardados na lista “tabelas”.
+
+
+-------------------------------------------------------------
+3️⃣ COMO FICA A LISTA tabelas APÓS OS LOOPS
+-------------------------------------------------------------
+Depois de processar GRUPO-1, MOTIVO-1, a lista tabelas contém:
+
+[
+  ┌────────────────────┬──────────────┬────────────┐
+  │ Grupo              │ Motivo       │ Quantidade │
+  ├────────────────────┼──────────────┼────────────┤
+  │ ADMINISTRATIVO     │ ATENDIMENTO  │ 2          │
+  │ ENFERMAGEM         │ QUALIDADE    │ 1          │
+  └────────────────────┴──────────────┴────────────┘
+]
+
+Se o GRUPO-2 também tiver dados, como:
+
+| GRUPO-2 | MOTIVO-2 | ELOGIO OU QUEIXA-2 |
+|----------|-----------|-------------------|
+| MÉDICO   | ATENDIMENTO | ELOGIO/QUEIXA   |
+| MÉDICO   | TEMPO DE ESPERA | ELOGIO/QUEIXA |
+
+A lista tabelas passa a ter duas mini-tabelas (uma para GRUPO-1 e outra para GRUPO-2).
+
+
+-------------------------------------------------------------
+4️⃣ CONCATENAÇÃO — pd.concat()
+-------------------------------------------------------------
+Quando fazemos:
+
+tabela_final = pd.concat(tabelas, ignore_index=True)
+
+O Pandas apenas empilha os DataFrames. Ele **NÃO soma nada ainda**.
+
+| Grupo          | Motivo          | Quantidade |
+|----------------|-----------------|-------------|
+| ADMINISTRATIVO | ATENDIMENTO     | 2 |
+| ENFERMAGEM     | QUALIDADE       | 1 |
+| MÉDICO         | TEMPO DE ESPERA | 1 |
+| MÉDICO         | ATENDIMENTO     | 1 |
+
+✅ Nenhuma soma é feita aqui. A soma real vem no pivot_table.
+
+
+-------------------------------------------------------------
+5️⃣ PIVOT TABLE — Onde ocorre a soma real
+-------------------------------------------------------------
+tabela_resumo = tabela_final.pivot_table(
+    index="Grupo",
+    columns="Motivo",
+    values="Quantidade",
+    aggfunc="sum",
+    fill_value=0
+)
+
+O pivot_table transforma os motivos em colunas e os grupos em linhas, somando as quantidades.
+
+| Motivo ↓ \ Grupo → | ATENDIMENTO | QUALIDADE | TEMPO DE ESPERA |
+|--------------------|-------------|------------|-----------------|
+| ADMINISTRATIVO     | 2           | 0          | 0               |
+| ENFERMAGEM         | 0           | 1          | 0               |
+| MÉDICO             | 1           | 0          | 1               |
+
+👉 O parâmetro “aggfunc='sum'” é quem soma as duplicadas.
+
+
+-------------------------------------------------------------
+6️⃣ SEGUNDO LOOP — todos_grupos e todos_motivos
+-------------------------------------------------------------
+Esse loop serve para garantir que todos os grupos e motivos da planilha apareçam,
+mesmo que não tenham tido “ELOGIO/QUEIXA”.
+
+Sem ele, grupos que nunca receberam elogio/queixa seriam omitidos.
+
+O loop coleta os nomes de todas as colunas GRUPO-i e MOTIVO-i e guarda em listas.
+Depois, ele transforma essas listas em conjuntos (set) para eliminar repetições.
+
+
+-------------------------------------------------------------
+7️⃣ REMOÇÃO DE DUPLICADOS — set()
+-------------------------------------------------------------
+Como os mesmos grupos e motivos aparecem em várias colunas (GRUPO-1, GRUPO-2, ...),
+as listas conteriam valores repetidos.
+
+Exemplo:
+todos_grupos = ['ADMINISTRATIVO', 'ENFERMAGEM', 'ADMINISTRATIVO', 'MÉDICO']
+
+Usar set(todos_grupos) remove os repetidos:
+{'ADMINISTRATIVO', 'ENFERMAGEM', 'MÉDICO'}
+
+sorted() apenas organiza alfabeticamente.  
+⚠️ Nenhum dado é apagado — só nomes duplicados nas listas auxiliares.
+
+
+-------------------------------------------------------------
+8️⃣ REINDEXAÇÃO — tabela_resumo.reindex()
+-------------------------------------------------------------
+Sem o reindex, apenas os grupos/motivos que tiveram dados aparecem.
+Com o reindex, garantimos que todos apareçam (mesmo com 0).
+
+| Grupo          | ATENDIMENTO | QUALIDADE | TEMPO DE ESPERA |
+|----------------|--------------|------------|-----------------|
+| ADMINISTRATIVO | 2            | 1          | 0               |
+| ENFERMAGEM     | 0            | 1          | 0               |
+| MÉDICO         | 1            | 0          | 1               |
+| LABORATÓRIO    | 0            | 0          | 0               |
+
+Isso é feito assim:
+
+tabela_resumo = tabela_resumo.reindex(
+    index=todos_grupos,
+    columns=todos_motivos,
+    fill_value=0
+)
+
+Ele faz um “mapeamento completo” entre a tabela final e a lista de referência,
+mantendo o que existe e criando com 0 o que não existe.
+
+
+-------------------------------------------------------------
+9️⃣ EXPLICAÇÃO DOS MÉTODOS IMPORTANTES
+-------------------------------------------------------------
+
+🔹 .size()
+Conta quantas linhas existem em cada grupo do groupby().
+
+Exemplo:
+df.groupby(["GRUPO", "MOTIVO"]).size()
+
+Retorno:
+GRUPO          MOTIVO       
+ADMINISTRATIVO ATENDIMENTO      2
+ENFERMAGEM     QUALIDADE        1
+
+⚙️ Resultado: Série com a contagem de combinações.
+
+
+🔹 .reset_index(name="Quantidade")
+Transforma a série do groupby() em um DataFrame normal,
+e renomeia a coluna de contagem para “Quantidade”.
+
+df.groupby(["GRUPO", "MOTIVO"]).size().reset_index(name="Quantidade")
+
+Retorna:
+
+| GRUPO          | MOTIVO        | Quantidade |
+|----------------|----------------|-------------|
+| ADMINISTRATIVO | ATENDIMENTO    | 2 |
+| ENFERMAGEM     | QUALIDADE      | 1 |
+
+
+🔹 fill_value=0
+Preenche automaticamente as células vazias (NaN) com o valor escolhido (0).
+
+Antes:
+| Grupo          | ATENDIMENTO | QUALIDADE |
+|----------------|--------------|------------|
+| ADMINISTRATIVO | 2            | NaN        |
+| ENFERMAGEM     | NaN          | 1          |
+
+Depois:
+| Grupo          | ATENDIMENTO | QUALIDADE |
+|----------------|--------------|------------|
+| ADMINISTRATIVO | 2            | 0          |
+| ENFERMAGEM     | 0            | 1          |
+
+
+-------------------------------------------------------------
+🔟 RESUMO FINAL
+-------------------------------------------------------------
+| Etapa | Método | Função | Resultado |
+|-------|----------|----------|-------------|
+| 1 | groupby() | Agrupa os dados | Cria mini-tabelas |
+| 2 | .size() | Conta linhas por grupo | Gera contagem |
+| 3 | .reset_index() | Transforma em DataFrame | Torna colunas visíveis |
+| 4 | pd.concat() | Junta mini-tabelas | Cria uma só tabela |
+| 5 | pivot_table() | Soma duplicadas e organiza visualmente | Monta matriz final |
+| 6 | set() | Remove duplicados das listas de grupos/motivos | Limpeza |
+| 7 | reindex() | Adiciona faltantes com 0 | Tabela completa |
+| 8 | fill_value=0 | Substitui NaN por 0 | Evita buracos |
+
+
+✅ Assim, o código garante que:
+- Nenhum grupo/motivo é perdido;
+- Todas as combinações são somadas corretamente;
+- A tabela final fica completa, limpa e pronta para visualização no Streamlit.
+

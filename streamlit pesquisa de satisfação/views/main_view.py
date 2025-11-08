@@ -25,7 +25,6 @@ def layout_geral_status_resposta():
 
 
 def layout_geral_elogio():
-    st.subheader("Elogios e Queixas: Resumo Geral")
 
     geral = contar_elogio_queixas_geral(df)
     elogio = contar_elogio(df)
@@ -33,13 +32,47 @@ def layout_geral_elogio():
     elogio_queixa = contar_elogios_queixas(df)
     resposta = contar_respostas(df)
 
-    st.dataframe(geral)
-    st.subheader("Elogios")
-    st.dataframe(elogio)
-    st.subheader("Queixas")
-    st.dataframe(queixa)
-    st.subheader("Elogio ou Queixa")
-    st.header(elogio_queixa)
-    st.subheader("Tabela Total de Notas")
+    #st.dataframe(geral)
+    #st.subheader("Elogios")
+    #st.dataframe(elogio)
+    #st.subheader("Queixas")
+    #st.dataframe(queixa)
+    #st.subheader("Elogios e Queixas")
+    #st.dataframe(elogio_queixa)
+    #st.subheader("Tabela Total de Notas")
     st.dataframe(resposta)
-    
+
+    # ======= TABELA ELOGIOS E QUEIXAS: RESUMO GERAL =======
+
+    st.subheader("Elogios e Queixas: Resumo Geral")
+    st.dataframe(
+        geral.style
+        .applymap(lambda val: "background-color: #32CD32; color: white; font-weight: bold;" if val >= 1 else "")
+        .set_properties(**{"text-align": "center"})
+    )
+
+    # ======= TABELA DE ELOGIOS =======
+    st.subheader("Elogios")
+    st.dataframe(
+        elogio.style
+        .applymap(lambda val: "background-color: #32CD32; color: white; font-weight: bold;" if val >= 1 else "")
+        .set_properties(**{"text-align": "center"})  # Centraliza tudo
+    )
+
+    # ======= TABELA DE QUEIXAS =======
+    st.subheader("Queixas")
+    st.dataframe(
+        queixa.style
+        .applymap(lambda val: "background-color: #32CD32; color: white; font-weight: bold;" if val >= 1 else "")
+        .set_properties(**{"text-align": "center"})
+    )
+
+    # ======= TABELA DE ELOGIO/QUEIXA =======
+    st.subheader("Elogio ou Queixa")
+    st.dataframe(
+        elogio_queixa.style
+        .applymap(lambda val: "background-color: #32CD32; color: white; font-weight: bold;" if val >= 1 else "")
+        .set_properties(**{"text-align": "center"})
+    )
+
+        
