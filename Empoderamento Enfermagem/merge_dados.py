@@ -1,27 +1,37 @@
 import pandas as pd
 
-# Nomes dos arquivos
-arquivo_match = 'final_match_3palavras.xlsx'
-arquivo_base = 'base dr jovita atualizado.xlsx'
+# --- Caminho do arquivo ---
+arquivo_original = "base para automação escuta ativa 1411.xlsx" 
+arquivo_merge = "total consolidado.xlsx"
 
-# Ler os arquivos Excel                         
-match_df = pd.read_excel(arquivo_match, engine='openpyxl')
-base_df = pd.read_excel(arquivo_base, engine='openpyxl')
+# --- Ler as planilhas ---
+df_original = pd.read_excel(arquivo_original, sheet_name="Planilha8")
+df_merge = pd.read_excel(arquivo_merge)
 
-# Verificar colunas
-if 'Nome 1' not in match_df.columns or 'Nome 2' not in match_df.columns:
-    raise ValueError("O arquivo final_match_3palavras deve conter as colunas 'Nome 1' e 'Nome 2'.")
-if 'Nome 1' not in base_df.columns or 'Nome 2' not in base_df.columns:
-    raise ValueError("O arquivo base dr jovita atualizado deve conter as colunas 'Nome 1' e 'Nome'.")
+# --- Váriaveis referencias ---
+coluna_1 = "Nome 1"
+coluna_2 = "Nome 2"
 
-# Criar dicionário Nome 1 -> Nome 2
-mapa_nome = dict(zip(match_df['Nome 1'], match_df['Nome 2']))
+# --- Função para verificar correspondência da coluna Nome 1 de ambos arquivos ---
+def verificar_correspondencia(df_orginal, df_merge, coluna_1, coluna_2):
+    correspondencia = []
 
-# Atualizar coluna 'Nome' no base_df
-base_df['Nome 2'] = base_df.apply(lambda row: mapa_nome.get(row['Nome 1'], row['Nome 2']), axis=1)
+    for nome in df_orginal[coluna_1].astype(str):
+        nome_limpo = nome.strip().lower()
+        valor_extraido = None
 
-# Salvar resultado
-arquivo_saida = 'base_atualizado_com_nome2.xlsx'
-base_df.to_excel(arquivo_saida, index=False)
+        for _, linha in df_merge.iterrows():
+            base_limpa = str(linha[coluna_2]).strip().lower()
+            if nome_limpo == base_limpa:
+                valor_extraido = linha[coluna_1]
+                break
 
-print(f"Junção concluída com sucesso! Arquivo salvo como: {arquivo_saida}")
+        correspondencia.append((nome, valor_extraido))
+        
+    return correspondencia           
+                   
+
+correspondencia = verificar_correspondencia(df_original, df_merge, coluna_1, coluna_2)
+
+df_resultado = pd.DataFrame(correspondencia, columns=[coluna_1, coluna_1])
+df_resultado.to_excel("resultado_correspondencia.xlsx", index=False) 
